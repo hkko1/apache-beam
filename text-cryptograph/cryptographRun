@@ -1,2 +1,2 @@
 mvn compile exec:java -Dexec.mainClass=org.apache.beam.examples.cryptograph.TextEncryption \
-     -Dexec.args="--inputFile=input.csv --output=output --cryptoOperation=encryption" -Pdirect-runner
+     -Dexec.args="--inputFile=input.csv --output=encrypted --cryptoOperation=encryption" -Pdirect-runner

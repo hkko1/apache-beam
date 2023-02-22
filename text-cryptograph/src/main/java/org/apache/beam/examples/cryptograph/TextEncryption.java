@@ -37,7 +37,8 @@ public class TextEncryption {
                     Schema.Field.of("id", Schema.FieldType.INT32),
                     Schema.Field.of("text", Schema.FieldType.STRING),
                     Schema.Field.of("key", Schema.FieldType.STRING),
-                    Schema.Field.of("algorithm", Schema.FieldType.STRING));
+                    Schema.Field.of("algorithm", Schema.FieldType.STRING),
+                    Schema.Field.of("isTransformed", Schema.FieldType.BOOLEAN));
 
     //Encrypt the text data using the key and algorithm info
     static class DoEncryptPojosFn extends DoFn<TextData, TextData> {
@@ -99,14 +100,20 @@ public class TextEncryption {
     static class DoEncryptFn extends DoFn<Row, Row> {
         @ProcessElement
         public void processEncryptTextElement(@Element Row element, OutputReceiver<Row> receiver){
-            //TO DO : use real encryption algorithm
+            //TO DO : use real encryption algorithmS
             String encryptedText = "@#"+ element.getString("text");
+            boolean isTransformed = false;
+
+            if(encryptedText != null){
+                isTransformed = true;
+            }
 
             Row row = Row.withSchema(SCHEMA)
                     .addValues(element.getInt32("id"),
                             encryptedText,
                             element.getString("key"),
-                            element.getString("algorithm"))
+                            element.getString("algorithm"),
+                            isTransformed)
                     .build();//algorithm
 
             receiver.output(row);
@@ -132,6 +139,7 @@ public class TextEncryption {
                         .withFieldValue("text",inputs[1].trim()) //text
                         .withFieldValue("key",inputs[2].trim())//key
                         .withFieldValue("algorithm",inputs[3].trim())
+                        .withFieldValue("isTransformed", false)
                         .build();//algorithm
                 receiver.output(row);
             }
@@ -149,8 +157,28 @@ public class TextEncryption {
         }
     }
 
+    static class DoExtractTransformationResultFn extends DoFn<Row, Boolean>{
+        @ProcessElement
+        public void processExtractTransformationResult(@Element Row element, OutputReceiver<Boolean> receiver){
+            Boolean isTransformed = element.getBoolean("isTransformed");
+            receiver.output(isTransformed);
+        }
+    }
+    static class CountTransformedData extends PTransform<PCollection<Row>, PCollection<KV<Boolean, Long>>>{
+
+        @Override
+        public PCollection<KV<Boolean, Long>> expand(PCollection<Row> input) {
+            PCollection<Boolean> transformedResult = input.apply(ParDo.of(new DoExtractTransformationResultFn()));
+
+            // Count the number of times each word occurs.
+            PCollection<KV<Boolean, Long>> counts = transformedResult.apply(Count.perElement());
+
+            return counts;
+        }
+    }
+
     //return string ( "id,text,key,algorithm" ) from TextData object
-    static class FormatAsTextFn extends SimpleFunction<Row, String>{
+    static class FormatAsCsvFn extends SimpleFunction<Row, String>{
         @Override
         public String apply(Row input) {
             String result = input.getInt32("id") + ","
@@ -160,17 +188,34 @@ public class TextEncryption {
             return result;
         }
     }
+
+    static class FormatAsTextFn extends SimpleFunction<KV<Boolean, Long>, String>{
+        @Override
+        public String apply(KV<Boolean, Long> input) {
+            String result = input.getKey() ? "Success" : "Failure";
+            return result + ": " + input.getValue();
+        }
+    }
     static void runTextEncryption(TextEncryptionOptions options){
         Pipeline p = Pipeline.create(options);
         System.out.println("CryptoOperation:"+options.getCryptoOperation());
-        p.apply("ReadLines", TextIO.read().from(options.getInputFile()))
+
+        //Multiple transforms process the same PCollection
+        PCollection<Row> rowCollection = p.apply("ReadLines", TextIO.read().from(options.getInputFile()))
                 .apply("ConvertInputDataToObject", new ConvertInputData())
                 .setRowSchema(SCHEMA)
-               .apply("Text Encryption", new EncryptText())
-                .setRowSchema(SCHEMA)
-                .apply("TextData to String(for csv)", MapElements.via(new FormatAsTextFn()))
+                .apply("Text Encryption", new EncryptText())
+                .setRowSchema(SCHEMA);
+
+        //Output : .csv file which has the transformed data
+        rowCollection.apply("TextData to String(for csv)", MapElements.via(new FormatAsCsvFn()))
                 .apply("WriteEncryptText", TextIO.write().to(options.getOutput()).withoutSharding().withSuffix(".csv"));
                 //.apply("WriteEncryptText", TextIO.write().to(options.getOutput()));
+
+        //Output: .txt file which has the number of transformed data
+        rowCollection.apply("Count the number of transformed data", new CountTransformedData())
+                .apply("BooleanResult to String(for txt)", MapElements.via(new FormatAsTextFn()))
+                .apply("WriteCountResult", TextIO.write().to(options.getOutput()).withoutSharding().withSuffix(".txt"));
 
         p.run().waitUntilFinish();
     }
