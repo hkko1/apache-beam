@@ -9,10 +9,7 @@ import org.apache.beam.sdk.values.KV;
 import org.apache.beam.sdk.values.PCollection;
 import org.apache.beam.sdk.values.Row;
 
-import javax.xml.soap.Text;
-import java.util.Arrays;
-
-public class TextEncryption {
+public class TextTransformation {
     public interface TextEncryptionOptions extends PipelineOptions{
         @Description("Path of the file to read from")
         @Default.String("input.csv")
@@ -295,7 +292,7 @@ public class TextEncryption {
 
     public static void main(String[] args){
         TextEncryptionOptions options = PipelineOptionsFactory.fromArgs(args).withValidation().as(TextEncryptionOptions.class);
-        System.out.println("Hello TextEncryption");
+        System.out.println("Hello TextTransformation");
         runTextEncryption(options);
     }
 }
