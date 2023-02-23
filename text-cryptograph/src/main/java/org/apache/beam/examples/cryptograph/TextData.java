@@ -8,16 +8,16 @@ public class TextData {
     int id;
     String text;
     String key;
-    String algorithm;
+    String transformation;
 
     public TextData(){
         //default
     }
-    public TextData(int id, String text, String key, String algorithm) {
+    public TextData(int id, String text, String key, String transformation) {
         this.id = id;
         this.text = text;
         this.key = key;
-        this.algorithm = algorithm;
+        this.transformation = transformation;
     }
 
     public int getId() {
@@ -44,18 +44,18 @@ public class TextData {
         this.key = key;
     }
 
-    public String getAlgorithm() {
-        return algorithm;
+    public String getTransformation() {
+        return transformation;
     }
 
-    public void setAlgorithm(String algorithm) {
-        this.algorithm = algorithm;
+    public void setTransformation(String transformation) {
+        this.transformation = transformation;
     }
 
     @Override
     public String toString() {
 
-        String outputStr = id +"," + text +"," + key +"," + algorithm;
+        String outputStr = id +"," + text +"," + key +"," + transformation;
         return outputStr;
     }
 }

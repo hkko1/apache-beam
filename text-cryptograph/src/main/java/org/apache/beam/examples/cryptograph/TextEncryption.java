@@ -37,17 +37,17 @@ public class TextEncryption {
                     Schema.Field.of("id", Schema.FieldType.INT32),
                     Schema.Field.of("text", Schema.FieldType.STRING),
                     Schema.Field.of("key", Schema.FieldType.STRING),
-                    Schema.Field.of("algorithm", Schema.FieldType.STRING),
+                    Schema.Field.of("transformation", Schema.FieldType.STRING),
                     Schema.Field.of("isTransformed", Schema.FieldType.BOOLEAN));
 
-    //Encrypt the text data using the key and algorithm info
+    //Encrypt the text data using the key and transformation algorithm info
     static class DoEncryptPojosFn extends DoFn<TextData, TextData> {
         @ProcessElement
         public void processEncryptTextElement(@Element TextData element, OutputReceiver<TextData> receiver){
             //TO DO : use real encryption algorithm
             String encryptedText = "@#"+ element.getText();
 
-            receiver.output(new TextData(element.getId(), encryptedText, element.getKey(), element.getAlgorithm()));
+            receiver.output(new TextData(element.getId(), encryptedText, element.getKey(), element.getTransformation()));
         }
     }
 
@@ -70,7 +70,7 @@ public class TextEncryption {
                 TextData td = new TextData(Integer.parseInt(inputs[0].trim()), //id
                                     inputs[1].trim(), //text
                                     inputs[2].trim(),//key
-                                    inputs[3].trim());//algorithm
+                                    inputs[3].trim());//transformation
                 receiver.output(td);
             }
 
@@ -101,24 +101,37 @@ public class TextEncryption {
         @ProcessElement
         public void processEncryptTextElement(@Element Row element, OutputReceiver<Row> receiver){
             //TO DO : use real encryption algorithmS
-            String encryptedText = "@#"+ element.getString("text");
+            //String encryptedText = "@#"+ element.getString("text");
+
+            String encryptedText = "";
+
+            try{
+                encryptedText = Cryptographer.encryptMessage(element.getString("text"),
+                                                            element.getString("key"),
+                                                            element.getString("transformation"));
+            }catch(Exception e){
+                System.out.println("Encryption("+element.getString("transformation")+") Failed: " + e);
+            }
+
+
             boolean isTransformed = false;
 
-            if(encryptedText != null){
+            if(encryptedText != null && encryptedText.length() != 0){
                 isTransformed = true;
             }
 
             Row row = Row.withSchema(SCHEMA)
                     .addValues(element.getInt32("id"),
-                            encryptedText,
+                            new String(encryptedText),
                             element.getString("key"),
-                            element.getString("algorithm"),
+                            element.getString("transformation"),
                             isTransformed)
-                    .build();//algorithm
+                    .build();//transformation
 
             receiver.output(row);
         }
     }
+
     static class EncryptText extends PTransform<PCollection<Row>, PCollection<Row>>{
 
         @Override
@@ -127,20 +140,66 @@ public class TextEncryption {
             return results;
         }
     }
+
+    //Encrypt the text data using the key and algorithm info
+    static class DoDecryptFn extends DoFn<Row, Row> {
+        @ProcessElement
+        public void processDecryptTextElement(@Element Row element, OutputReceiver<Row> receiver){
+            //TO DO : use real encryption algorithmS
+            //String encryptedText = "@#"+ element.getString("text");
+
+            String decryptedText = "";
+
+            try{
+                decryptedText = Cryptographer.decryptMessage(element.getString("text"),
+                        element.getString("key"),
+                        element.getString("transformation"));
+            }catch(Exception e){
+                System.out.println("Decryption("+element.getString("transformation")+") Failed: " + e);
+            }
+
+
+            boolean isTransformed = false;
+
+            if(decryptedText != null && decryptedText.length() != 0){
+                isTransformed = true;
+            }
+
+
+            Row row = Row.withSchema(SCHEMA)
+                    .addValues(element.getInt32("id"),
+                            new String(decryptedText),
+                            element.getString("key"),
+                            element.getString("transformation"),
+                            isTransformed)
+                    .build();//transformation
+
+            receiver.output(row);
+        }
+    }
+    static class DecryptText extends PTransform<PCollection<Row>, PCollection<Row>>{
+
+        @Override
+        public PCollection<Row> expand(PCollection<Row> input) {
+            PCollection<Row> results = input.apply(ParDo.of(new DoDecryptFn()));
+            return results;
+        }
+    }
     //Make TextData object with the extracted text data
     static class DoExtractTextDataFn extends DoFn<String, Row>{
         @ProcessElement
         public void processExtractTextData(@Element String element, OutputReceiver<Row> receiver){
-
+            System.out.println("input_element:"+element);
             String[] inputs = element.split(",", -1);
+            System.out.println("input:(id:"+Integer.parseInt(inputs[0].trim()) + " ,text: "+inputs[1].trim()+", key:"+inputs[2].trim() +", transformation: "+inputs[3].trim());
             if(inputs.length == 4){
                 Row row = Row.withSchema(SCHEMA)
                         .withFieldValue("id",Integer.parseInt(inputs[0].trim()))//id
                         .withFieldValue("text",inputs[1].trim()) //text
                         .withFieldValue("key",inputs[2].trim())//key
-                        .withFieldValue("algorithm",inputs[3].trim())
+                        .withFieldValue("transformation",inputs[3].trim())
                         .withFieldValue("isTransformed", false)
-                        .build();//algorithm
+                        .build();//transformation
                 receiver.output(row);
             }
 
@@ -177,14 +236,14 @@ public class TextEncryption {
         }
     }
 
-    //return string ( "id,text,key,algorithm" ) from TextData object
+    //return string ( "id,text,key,transformation" ) from TextData object
     static class FormatAsCsvFn extends SimpleFunction<Row, String>{
         @Override
         public String apply(Row input) {
             String result = input.getInt32("id") + ","
                             + input.getString("text") + ","
                             + input.getString("key") + ","
-                            + input.getString("algorithm");
+                            + input.getString("transformation");
             return result;
         }
     }
@@ -201,11 +260,24 @@ public class TextEncryption {
         System.out.println("CryptoOperation:"+options.getCryptoOperation());
 
         //Multiple transforms process the same PCollection
-        PCollection<Row> rowCollection = p.apply("ReadLines", TextIO.read().from(options.getInputFile()))
-                .apply("ConvertInputDataToObject", new ConvertInputData())
-                .setRowSchema(SCHEMA)
-                .apply("Text Encryption", new EncryptText())
-                .setRowSchema(SCHEMA);
+        PCollection<Row> rowCollection;
+        if(options.getCryptoOperation().equals("encryption")){
+            rowCollection = p.apply("ReadLines", TextIO.read().from(options.getInputFile()))
+                    .apply("ConvertInputDataToObject", new ConvertInputData())
+                    .setRowSchema(SCHEMA)
+                    .apply("Text Encryption", new EncryptText())
+                    .setRowSchema(SCHEMA);
+        }else if(options.getCryptoOperation().equals("decryption")){ //decryption
+            rowCollection = p.apply("ReadLines", TextIO.read().from(options.getInputFile()))
+                    .apply("ConvertInputDataToObject", new ConvertInputData())
+                    .setRowSchema(SCHEMA)
+                    .apply("Text Encryption", new DecryptText())
+                    .setRowSchema(SCHEMA);
+        }else{
+            System.out.println("===Error: CryptoOperation option is wrong. Please use 'encryption' or 'decryption === ");
+            return;
+        }
+
 
         //Output : .csv file which has the transformed data
         rowCollection.apply("TextData to String(for csv)", MapElements.via(new FormatAsCsvFn()))
@@ -216,6 +288,7 @@ public class TextEncryption {
         rowCollection.apply("Count the number of transformed data", new CountTransformedData())
                 .apply("BooleanResult to String(for txt)", MapElements.via(new FormatAsTextFn()))
                 .apply("WriteCountResult", TextIO.write().to(options.getOutput()).withoutSharding().withSuffix(".txt"));
+
 
         p.run().waitUntilFinish();
     }
