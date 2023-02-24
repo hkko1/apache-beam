@@ -5,13 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="864ca150-89a9-46b5-b514-44aebbf94a62" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/text-cryptograph/cryptographRun" beforeDir="false" afterPath="$PROJECT_DIR$/text-cryptograph/cryptographRun" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/text-cryptograph/outputcsv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/text-cryptograph/src/main/java/org/apache/beam/examples/cryptograph/TextEncryption.java" beforeDir="false" afterPath="$PROJECT_DIR$/text-cryptograph/src/main/java/org/apache/beam/examples/cryptograph/TextEncryption.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/text-cryptograph/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst" beforeDir="false" afterPath="$PROJECT_DIR$/text-cryptograph/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -40,6 +35,7 @@
   "keyToString": {
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "last_opened_file_path": "/Users/T996598/fullstack_study/apache-beam"
   }
 }]]></component>

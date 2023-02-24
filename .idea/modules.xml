@@ -3,8 +3,6 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/apache-beam.iml" filepath="$PROJECT_DIR$/.idea/apache-beam.iml" />
-      <module fileurl="file://$PROJECT_DIR$/apacheBeamCrypto/apacheBeamCrypto.iml" filepath="$PROJECT_DIR$/apacheBeamCrypto/apacheBeamCrypto.iml" />
-      <module fileurl="file://$PROJECT_DIR$/apacheBeamMywork/apacheBeamMywork.iml" filepath="$PROJECT_DIR$/apacheBeamMywork/apacheBeamMywork.iml" />
       <module fileurl="file://$PROJECT_DIR$/text-cryptograph/text-cryptograph.iml" filepath="$PROJECT_DIR$/text-cryptograph/text-cryptograph.iml" />
       <module fileurl="file://$PROJECT_DIR$/word-count-beam/word-count-beam.iml" filepath="$PROJECT_DIR$/word-count-beam/word-count-beam.iml" />
     </modules>
