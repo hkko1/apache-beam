@@ -5,10 +5,15 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="864ca150-89a9-46b5-b514-44aebbf94a62" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/text-cryptograph-dataflow-template/src/main/java/org/apache/beam/examples/cryptograph/TextCryptoPCollectionFetchers.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/apache-beam.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/apache-beam.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/text-cryptograph-dataflow-template/decryptRun" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/text-cryptograph-dataflow-template/encryptRun" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/text-cryptograph-dataflow-template/encrypted.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/text-cryptograph-dataflow-template/encrypted.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/text-cryptograph-dataflow-template/src/main/java/org/apache/beam/examples/cryptograph/TextCryptoApplier.java" beforeDir="false" afterPath="$PROJECT_DIR$/text-cryptograph-dataflow-template/src/main/java/org/apache/beam/examples/cryptograph/TextCryptoApplier.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/text-cryptograph-dataflow-template/src/main/java/org/apache/beam/examples/cryptograph/TextCryptoTransformPipeline.java" beforeDir="false" afterPath="$PROJECT_DIR$/text-cryptograph-dataflow-template/src/main/java/org/apache/beam/examples/cryptograph/TextCryptoTransformPipeline.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/text-cryptograph-dataflow-template/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst" beforeDir="false" afterPath="$PROJECT_DIR$/text-cryptograph-dataflow-template/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/text-cryptograph-dataflow-template/target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst" beforeDir="false" afterPath="$PROJECT_DIR$/text-cryptograph-dataflow-template/target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -69,7 +74,7 @@
       <breakpoints>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/text-cryptograph-dataflow-template/src/main/java/org/apache/beam/examples/cryptograph/TextCryptoTransformPipeline.java</url>
-          <line>121</line>
+          <line>71</line>
           <option name="timeStamp" value="1" />
         </line-breakpoint>
       </breakpoints>

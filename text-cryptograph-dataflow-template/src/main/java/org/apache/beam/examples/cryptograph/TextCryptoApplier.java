@@ -31,14 +31,17 @@ public class TextCryptoApplier extends PTransform<PCollection<Row>, PCollection<
     static class DoTransformFn extends DoFn<Row, Row> {
 
         private String transformation;
-        public DoTransformFn(String transformation){
+        private Schema schema;
+        public DoTransformFn(String transformation, Schema schema){
+
             this.transformation = transformation;
+            this.schema = schema;
         }
         @ProcessElement
         public void processEncryptTextElement(@Element Row element, OutputReceiver<Row> receiver){
             //TO DO : use real encryption algorithmS
             //String encryptedText = "@#"+ element.getString("text");
-
+            System.out.println("TextCryptoApplier: " + element.getInt32("id").toString());
             String transformedText = "";
 
             try{
@@ -47,7 +50,7 @@ public class TextCryptoApplier extends PTransform<PCollection<Row>, PCollection<
                             element.getString("key"),
                             element.getString("transformation"));
                 }else{
-                    transformedText = Cryptographer.encryptMessage(element.getString("text"),
+                    transformedText = Cryptographer.decryptMessage(element.getString("text"),
                             element.getString("key"),
                             element.getString("transformation"));
                 }
@@ -63,7 +66,7 @@ public class TextCryptoApplier extends PTransform<PCollection<Row>, PCollection<
                 isTransformed = true;
             }
 
-            Row row = Row.withSchema(SCHEMA)
+            Row row = Row.withSchema(schema)
                     .addValues(element.getInt32("id"),
                             new String(transformedText),
                             element.getString("key"),
@@ -77,8 +80,9 @@ public class TextCryptoApplier extends PTransform<PCollection<Row>, PCollection<
 
     @Override
     public PCollection<Row> expand(PCollection<Row> input) {
-
-        PCollection<Row> results = input.apply(ParDo.of(new DoTransformFn(transformation)));
+        Schema inputSchema = input.getSchema();
+        PCollection<Row> results = input.apply(ParDo.of(new DoTransformFn(transformation, inputSchema)))
+                                        .setRowSchema(inputSchema);
         return results;
     }
 }

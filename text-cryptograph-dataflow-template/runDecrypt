@@ -1,2 +1,2 @@
-mvn compile exec:java -Dexec.mainClass=org.apache.beam.examples.cryptograph.TextTransformation \
+mvn compile exec:java -Dexec.mainClass=org.apache.beam.examples.cryptograph.TextCryptoTransformPipeline \
      -Dexec.args="--inputFile=encrypted.csv --output=decrypted --cryptoOperation=decryption" -Pdirect-runner
