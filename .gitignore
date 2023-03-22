@@ -7,6 +7,17 @@
 # BlueJ files
 *.ctxt
 
+# IntelliJ files
+**/.idea/**/*
+**/*.iml
+**/*.ipr
+**/*.iws
+**/out/**/*
+
+# MacOSX Files
+**/.DS_Store/**/*
+**/.DS_Store
+
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/
 
